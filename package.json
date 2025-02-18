@@ -1,0 +1,36 @@
+{
+  "name": "stikki",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3500",
+    "build": "tsc && vite build",
+    "format-and-lint": "prettier --ignore-path .gitignore --check src/** --log-level warn",
+    "format-and-lint:fix": "prettier --ignore-path .gitignore --write src/**",
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "hash-slash": "^0.2.1",
+    "jazz-react": "^0.10.3",
+    "jazz-tools": "^0.10.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-draggable": "^4.4.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react-swc": "^3.3.2",
+    "autoprefixer": "^10.4.20",
+    "is-ci": "^3.0.1",
+    "postcss": "^8.4.27",
+    "prettier": "^3.5.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.11"
+  }
+}
