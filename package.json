@@ -8,9 +8,7 @@
     "build": "tsc && vite build",
     "format-and-lint": "prettier --ignore-path .gitignore --check src/** --log-level warn",
     "format-and-lint:fix": "prettier --ignore-path .gitignore --write src/**",
-    "preview": "vite preview",
-    "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "preview": "vite preview"
   },
   "dependencies": {
     "hash-slash": "^0.2.1",
