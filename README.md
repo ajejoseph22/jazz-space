@@ -4,6 +4,13 @@ Collaborative Sticky Notes app built with [Jazz](https://jazz.tools).
 
 Use the app on https://jazz-space.vercel.app
 
+## Guidelines
+- Navigate to the app
+- Create a new board.
+- Copy the board link to share with others.
+- Add, edit and delete sticky notes on the board. The notes are synced in real-time using WebSockets. 
+- Drag and drop the notes (unsynced) to reposition them on the board.
+
 ## Development Mode
 1. Clone the repository.
 ```bash
