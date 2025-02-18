@@ -1,4 +1,4 @@
-import { apiKey } from "@/apiKey.ts";
+import { apiKey } from "@/api-key.ts";
 import { getRandomUsername, inIframe } from "@/util.ts";
 import { useIframeHashRouter } from "hash-slash";
 import { JazzProvider, useAccount } from "jazz-react";
@@ -6,7 +6,7 @@ import { ID } from "jazz-tools";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Board as BoardModel } from "./schema.ts";
-import { ThemeProvider } from "./themeProvider.tsx";
+import { ThemeProvider } from "./theme-provider.tsx";
 import Board from "@/components/board";
 import { Lobby } from "@/components/lobby";
 import { TopBar } from "@/components/top-bar";
