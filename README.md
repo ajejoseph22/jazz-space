@@ -1,6 +1,6 @@
 # Jazz Space
 
-Collaborative Sticky Notes app built with Jazz.
+Collaborative Sticky Notes app built with [Jazz](https://jazz.tools).
 
 Use the app on https://jazz-space.vercel.app
 
