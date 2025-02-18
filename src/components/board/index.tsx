@@ -13,7 +13,10 @@ const Board = ({ id }: { id: ID<BoardModel> }) => {
     );
 
   const addNote = (text: string = "") => {
-    const newNote = NoteModel.create({ text }, board._owner);
+    const newNote = NoteModel.create(
+      { text, isBeingEdited: false },
+      board._owner,
+    );
     board.push(newNote);
   };
 
