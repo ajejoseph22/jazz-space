@@ -4,7 +4,7 @@ Collaborative Sticky Notes app built with [Jazz](https://jazz.tools).
 
 Use the app on https://jazz-space.vercel.app
 
-## Getting started
+## Development Mode
 1. Clone the repository.
 ```bash
 git clone https://github.com/ajejoseph22/jazz-space.git
@@ -21,3 +21,4 @@ yarn run dev
 ```
 
 4. Open [http://localhost:3500](http://localhost:3500) with your browser to see the result.
+ 
