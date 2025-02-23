@@ -1,14 +1,17 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import Draggable from "react-draggable";
+
 import { Note as NoteModel } from "@/schema.ts";
 
 interface NoteProps {
   note: NoteModel;
-  onRemove: () => void;
   children: React.ReactNode;
+  zIndex: number;
+  onBringToTop: () => void;
+  onRemove: () => void;
 }
 
-const Note = ({ note, children, onRemove }: NoteProps) => {
+const Note = ({ note, children, zIndex, onBringToTop, onRemove }: NoteProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -29,20 +32,42 @@ const Note = ({ note, children, onRemove }: NoteProps) => {
     return () => window.removeEventListener('resize', updateParentSize);
   }, []);
 
+  // Handle browser close/refresh
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (note.isBeingEdited && isEditing) {
+        note.isBeingEdited = false;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [note]);
+
+  const noteDimensions = useMemo(() => {
+    const sizePercent = 10.5;
+    return {
+      width: `${sizePercent}vw`,
+      height: `${sizePercent}vw`,
+      minWidth: `${sizePercent}vw`,
+      minHeight: `${sizePercent}vw`,
+      maxWidth: `${sizePercent}vw`,
+      maxHeight: `${sizePercent}vw`,
+      aspectRatio: '1',
+    };
+  }, []);
+
   const handleDrag = (_e: any, data: { x: number, y: number }) => {
     const parent = nodeRef.current?.parentElement;
     const noteElement = nodeRef.current;
     if (!parent || !noteElement) return;
 
-    // Calculate maximum allowed positions considering note dimensions
-    const noteWidth = noteElement.offsetWidth;
-    const noteHeight = noteElement.offsetHeight;
+    const xPercent = (data.x / (parent.clientWidth - noteElement.offsetWidth)) * 100;
+    const yPercent = (data.y / (parent.clientHeight - noteElement.offsetHeight)) * 100;
 
-    // Convert to percentages but account for note size
-    const xPercent = (data.x / (parent.clientWidth - noteWidth)) * 100;
-    const yPercent = (data.y / (parent.clientHeight - noteHeight)) * 100;
-
-    // Clamp values between 0 and 100
     note.x = Math.max(0, Math.min(xPercent, 100));
     note.y = Math.max(0, Math.min(yPercent, 100));
   };
@@ -50,8 +75,8 @@ const Note = ({ note, children, onRemove }: NoteProps) => {
   const position = useMemo(() => {
     if (!nodeRef.current?.parentElement) return { x: 0, y: 0 };
     
-    const noteWidth = nodeRef.current?.offsetWidth || 150; 
-    const noteHeight = nodeRef.current?.offsetHeight || 150; 
+    const noteWidth = nodeRef.current?.offsetWidth || 0;
+    const noteHeight = nodeRef.current?.offsetHeight || 0;
     
     const availableWidth = parentSize.width - noteWidth;
     const availableHeight = parentSize.height - noteHeight;
@@ -62,10 +87,9 @@ const Note = ({ note, children, onRemove }: NoteProps) => {
     };
   }, [note.x, note.y, parentSize]);
 
-  const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this note?")) {
-      onRemove();
-    }
+  const handleEdit = () => {
+    setIsEditing(true);
+    note.isBeingEdited = true;
   };
 
   const handleSave = () => {
@@ -86,54 +110,68 @@ const Note = ({ note, children, onRemove }: NoteProps) => {
     <Draggable
       nodeRef={nodeRef}
       position={position}
-      onDrag={handleDrag}
       bounds="parent"
       handle=".handle"
+      onDrag={handleDrag}
+      onStart={onBringToTop}
     >
-      <div ref={nodeRef} className="absolute w-[150px] min-h-[150px] bg-yellow-300 shadow-lg p-2">
-        <div className="handle w-full h-8 bg-yellow-500 cursor-grab" />
-        {isEditing ? (
-          <>
-            <textarea
-              ref={textRef}
-              className="w-full h-full max-h-[250px] bg-white/50 p-2 text-lg rounded"
-              defaultValue={String(children)}
-            />
-            <button
-              className="bg-green-500 text-white p-1 rounded mt-2"
-              onClick={handleSave}
-            >
-              💾
-            </button>
-          </>
-        ) : (
-          <>
-            <p className="text-xl font-handwritten p-2 max-h-[250px] overflow-y-auto break-words whitespace-pre-wrap">
-              {children}
-            </p>
-            <span className="absolute bottom-2 right-2 opacity-0 transition-opacity hover:opacity-100 flex gap-1">
+      <div 
+        ref={nodeRef} 
+        className="absolute bg-yellow-300 shadow-lg p-2 flex flex-col"
+        style={{
+          ...noteDimensions,
+          zIndex,
+        }}
+        onClick={(e) => {
+          if (
+            !(e.target as HTMLElement).closest('button') &&
+            !(e.target as HTMLElement).closest('.handle')
+          ) {
+            onBringToTop();
+          }
+        }}
+      >
+        <div className="handle w-full h-8 bg-yellow-500 cursor-grab shrink-0" />
+        <div className="flex-1 overflow-hidden">
+          {isEditing ? (
+            <>
+              <textarea
+                ref={textRef}
+                className="w-full h-[calc(100%-2rem)] bg-white/50 p-2 text-lg rounded resize-none"
+                defaultValue={String(children)}
+              />
               <button
-                onClick={() => {
-                  setIsEditing(true);
-                  note.isBeingEdited = true;
-                }}
-                className="bg-blue-500 text-white p-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={note.isBeingEdited}
+                className="bg-green-500 text-white p-[0.1rem] rounded"
+                onClick={handleSave}
               >
-                ✏️
+                💾
               </button>
-              <button
-                onClick={handleDelete}
-                className="bg-red-500 text-white p-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={note.isBeingEdited}
-                title={"Cannot delete while note is being edited"}
-              >
-                🗑️
-              </button>
-              {tooltip}
-            </span>
-          </>
-        )}
+            </>
+          ) : (
+            <>
+              <p className="text-xl font-handwritten p-2 h-full overflow-y-auto break-words whitespace-pre-wrap">
+                {children}
+              </p>
+              <span className="absolute bottom-2 right-2 opacity-0 transition-opacity hover:opacity-100 flex gap-1">
+                <button
+                  onClick={handleEdit}
+                  className="bg-blue-500 text-white p-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={note.isBeingEdited}
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={onRemove}
+                  className="bg-red-500 text-white p-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={note.isBeingEdited}
+                >
+                  🗑️
+                </button>
+                {tooltip}
+              </span>
+            </>
+          )}
+        </div>
       </div>
     </Draggable>
   );
