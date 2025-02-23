@@ -11,6 +11,16 @@ interface NoteProps {
   onRemove: () => void;
 }
 
+const NOTE_DIMENSIONS = {
+  width: '10.5vw',
+  height: '10.5vw',
+  minWidth: '10.5vw',
+  minHeight: '10.5vw',
+  maxWidth: '10.5vw',
+  maxHeight: '10.5vw',
+  aspectRatio: '1',
+};
+
 const Note = ({ note, children, zIndex, onBringToTop, onRemove }: NoteProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -46,19 +56,6 @@ const Note = ({ note, children, zIndex, onBringToTop, onRemove }: NoteProps) => 
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [note]);
-
-  const noteDimensions = useMemo(() => {
-    const sizePercent = 10.5;
-    return {
-      width: `${sizePercent}vw`,
-      height: `${sizePercent}vw`,
-      minWidth: `${sizePercent}vw`,
-      minHeight: `${sizePercent}vw`,
-      maxWidth: `${sizePercent}vw`,
-      maxHeight: `${sizePercent}vw`,
-      aspectRatio: '1',
-    };
-  }, []);
 
   const handleDrag = (_e: any, data: { x: number, y: number }) => {
     const parent = nodeRef.current?.parentElement;
@@ -119,7 +116,7 @@ const Note = ({ note, children, zIndex, onBringToTop, onRemove }: NoteProps) => 
         ref={nodeRef} 
         className="absolute bg-yellow-300 shadow-lg p-2 flex flex-col"
         style={{
-          ...noteDimensions,
+          ...NOTE_DIMENSIONS,
           zIndex,
         }}
         onClick={(e) => {
