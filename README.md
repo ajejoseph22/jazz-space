@@ -9,8 +9,8 @@ Use the app on https://jazz-space.vercel.app
 - Create a new board.
 - Copy the board link to share with others.
 - Add new sticky notes to the board.
-- Hover the bottom-right of each note to edit and delete. The notes are synced in real-time using WebSockets. 
-- Use the handler at the top of each note to drag and drop (unsynced) them on the board.
+- Hover the bottom-right of each note to edit and delete.
+- Use the handler at the top of each note to drag and drop them on the board. The notes are synced in real-time using WebSockets. 
 
 ## Development Mode
 1. Clone the repository.
