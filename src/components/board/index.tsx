@@ -13,8 +13,17 @@ const Board = ({ id }: { id: ID<BoardModel> }) => {
     );
 
   const addNote = (text: string = "") => {
+    // Max 60% to leave room for note width & height
+    const x = 10 + Math.random() * 50; 
+    const y = 10 + Math.random() * 50;
+    
     const newNote = NoteModel.create(
-      { text, isBeingEdited: false },
+      {
+        x,
+        y,
+        text,
+        isBeingEdited: false,
+      },
       board._owner,
     );
     board.push(newNote);

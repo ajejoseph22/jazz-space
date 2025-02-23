@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Draggable from "react-draggable";
 import { Note as NoteModel } from "@/schema.ts";
 
@@ -8,17 +8,59 @@ interface NoteProps {
   children: React.ReactNode;
 }
 
-const getRandomPosition = (min: number, max: number) => {
-  return Math.min(Math.max(min, Math.ceil(Math.random() * max)), max);
-};
-
 const Note = ({ note, children, onRemove }: NoteProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [position, setPosition] = useState({
-    x: getRandomPosition(0, window.innerWidth - 300),
-    y: getRandomPosition(0, window.innerHeight - 300),
-  });
   const textRef = useRef<HTMLTextAreaElement>(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const [parentSize, setParentSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const updateParentSize = () => {
+      if (nodeRef.current?.parentElement) {
+        setParentSize({
+          width: nodeRef.current.parentElement.clientWidth,
+          height: nodeRef.current.parentElement.clientHeight
+        });
+      }
+    };
+
+    updateParentSize();
+    window.addEventListener('resize', updateParentSize);
+    return () => window.removeEventListener('resize', updateParentSize);
+  }, []);
+
+  const handleDrag = (_e: any, data: { x: number, y: number }) => {
+    const parent = nodeRef.current?.parentElement;
+    const noteElement = nodeRef.current;
+    if (!parent || !noteElement) return;
+
+    // Calculate maximum allowed positions considering note dimensions
+    const noteWidth = noteElement.offsetWidth;
+    const noteHeight = noteElement.offsetHeight;
+
+    // Convert to percentages but account for note size
+    const xPercent = (data.x / (parent.clientWidth - noteWidth)) * 100;
+    const yPercent = (data.y / (parent.clientHeight - noteHeight)) * 100;
+
+    // Clamp values between 0 and 100
+    note.x = Math.max(0, Math.min(xPercent, 100));
+    note.y = Math.max(0, Math.min(yPercent, 100));
+  };
+
+  const position = useMemo(() => {
+    if (!nodeRef.current?.parentElement) return { x: 0, y: 0 };
+    
+    const noteWidth = nodeRef.current?.offsetWidth || 150; 
+    const noteHeight = nodeRef.current?.offsetHeight || 150; 
+    
+    const availableWidth = parentSize.width - noteWidth;
+    const availableHeight = parentSize.height - noteHeight;
+    
+    return {
+      x: (note.x * availableWidth) / 100,
+      y: (note.y * availableHeight) / 100
+    };
+  }, [note.x, note.y, parentSize]);
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this note?")) {
@@ -42,14 +84,13 @@ const Note = ({ note, children, onRemove }: NoteProps) => {
 
   return (
     <Draggable
+      nodeRef={nodeRef}
+      position={position}
+      onDrag={handleDrag}
       bounds="parent"
       handle=".handle"
-      defaultPosition={{ x: position.x, y: position.y }}
-      onStop={(_, data) => {
-        setPosition({ x: data.x, y: data.y });
-      }}
     >
-      <div className="absolute w-[150px] min-h-[150px] bg-yellow-300 shadow-lg p-2">
+      <div ref={nodeRef} className="absolute w-[150px] min-h-[150px] bg-yellow-300 shadow-lg p-2">
         <div className="handle w-full h-8 bg-yellow-500 cursor-grab" />
         {isEditing ? (
           <>
