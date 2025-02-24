@@ -14,8 +14,8 @@ interface NoteProps {
 const NOTE_DIMENSIONS = {
   width: '10.5vw',
   height: '10.5vw',
-  minWidth: '10.5vw',
-  minHeight: '10.5vw',
+  minWidth: '150px',
+  minHeight: '150px',
   maxWidth: '10.5vw',
   maxHeight: '10.5vw',
   aspectRatio: '1',
@@ -51,7 +51,7 @@ const Note = ({ note, children, zIndex, onBringToTop, onRemove }: NoteProps) => 
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
@@ -71,13 +71,13 @@ const Note = ({ note, children, zIndex, onBringToTop, onRemove }: NoteProps) => 
 
   const position = useMemo(() => {
     if (!nodeRef.current?.parentElement) return { x: 0, y: 0 };
-    
+
     const noteWidth = nodeRef.current?.offsetWidth || 0;
     const noteHeight = nodeRef.current?.offsetHeight || 0;
-    
+
     const availableWidth = parentSize.width - noteWidth;
     const availableHeight = parentSize.height - noteHeight;
-    
+
     return {
       x: (note.x * availableWidth) / 100,
       y: (note.y * availableHeight) / 100
@@ -112,8 +112,8 @@ const Note = ({ note, children, zIndex, onBringToTop, onRemove }: NoteProps) => 
       onDrag={handleDrag}
       onStart={onBringToTop}
     >
-      <div 
-        ref={nodeRef} 
+      <div
+        ref={nodeRef}
         className="absolute bg-yellow-300 shadow-lg p-2 flex flex-col"
         style={{
           ...NOTE_DIMENSIONS,
